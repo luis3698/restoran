@@ -24,7 +24,7 @@ Conoce a los talentosos miembros de nuestro equipo que hacen posible una experie
 
 ## 📷 Vista Previa
 
-![Vista Previa de la Página Web](/bootstrap-restaurant-template/img/pantalla.png)
+![Vista Previa de la Página Web](/bootstrap-restaurant-template/img/pantalla1.png)
 
 ## 🌐 Tecnologías Utilizadas
 
