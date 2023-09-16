@@ -22,6 +22,10 @@ Conoce a los talentosos miembros de nuestro equipo que hacen posible una experie
 
 - **Personal de Servicio**: Nuestro equipo de servicio está dedicado a brindarte un servicio amable y atento en cada visita.
 
+## 📷 Vista Previa
+
+![Vista Previa de la Página Web](/bootstrap-restaurant-template/img/pantalla.png)
+
 ## 🌐 Tecnologías Utilizadas
 
 Esta página web fue desarrollada utilizando las siguientes tecnologías:
