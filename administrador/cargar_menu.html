@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrar Menús por Tipo</title>
+    <!-- Agrega tus enlaces a hojas de estilo y scripts aquí -->
+    <link rel="stylesheet" href="styles.css"> <!-- Enlace a tu archivo CSS -->
+ <!-- Firebase JavaScript -->
+ <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
+ <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-firestore.js"></script>
+ <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-storage.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script src="/administrador/js/Config.js"></script>
+
+</head>
+<body>
+    <!-- Barra de Navegación -->
+    <nav class="navbar">
+        <ul>
+            <li><a href="/administrador/cargar_menu.html">Menus</a></li>
+            <li><a href="/administrador/cargar_personal.html">Personal</a></li>
+        </ul>
+    </nav>
+    <h1>Administrar Menús por Tipo</h1>
+
+    <!-- Selector de tipo de menú -->
+    <label for="tipo-menu">Seleccione el Tipo de Menú:</label>
+    <select id="tipo-menu">
+        <option value="Breakfast">Desayuno</option>
+        <option value="Lunch">Almuerzo</option>
+        <option value="Dinner">Cena</option>
+    </select>
+
+    <!-- Formulario para agregar un nuevo plato al menú -->
+    <h2>Agregar Nuevo Plato</h2>
+    <form id="menu-form">
+        <label for="nombre">Nombre del Plato:</label>
+        <input type="text" id="nombre" required><br>
+
+        <label for="descripcion">Descripción:</label>
+        <input type="text" id="descripcion" required><br>
+
+        <label for="precio">Precio:</label>
+        <input type="number" id="precio" required><br>
+
+        <label for="imagen">Imagen del Plato:</label>
+        <input type="file" id="imagen" accept="image/*" required><br>
+
+        <button type="submit">Agregar Plato</button>
+    </form>
+
+    <!-- Lista de platos en el menú según el tipo seleccionado -->
+    <h2>Menú Actual</h2>
+    <ul id="menu-list">
+        <!-- Los platos se cargarán aquí desde Firebase -->
+    </ul>
+
+      <!-- JavaScript personalizado -->
+      <script>
+        // Verifica si la aplicación de Firebase ya está inicializada
+        if (!firebase.apps.length) {
+            // Inicializa Firebase con la configuración importada
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Referencias a elementos del formulario y lista
+        const tipoMenuSelect = document.getElementById("tipo-menu");
+        const menuForm = document.getElementById("menu-form");
+        const nombreInput = document.getElementById("nombre");
+        const descripcionInput = document.getElementById("descripcion");
+        const precioInput = document.getElementById("precio");
+        const imagenInput = document.getElementById("imagen");
+        const menuList = document.getElementById("menu-list");
+
+        // Función para mostrar una alerta
+        function mostrarAlerta(mensaje) {
+            alert(mensaje);
+        }
+
+        // Función para agregar un nuevo plato al menú
+        menuForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const tipoMenu = tipoMenuSelect.value;
+            const nombre = nombreInput.value;
+            const descripcion = descripcionInput.value;
+            const precio = parseFloat(precioInput.value);
+            const imagenFile = imagenInput.files[0]; // Obtiene el archivo de imagen
+
+            if (tipoMenu && nombre && descripcion && !isNaN(precio) && imagenFile) {
+                try {
+                    // Subir la imagen al almacenamiento de Firebase
+                    const storageRef = storage.ref(`imagenes/${tipoMenu}/${imagenFile.name}`);
+                    const snapshot = await storageRef.put(imagenFile);
+
+                    // Obtener la URL de la imagen subida
+                    const imagenURL = await snapshot.ref.getDownloadURL();
+
+                    // Agregar el nuevo plato a la colección correspondiente en Firebase Firestore
+                    await db.collection(tipoMenu).add({
+                        nombre,
+                        descripcion,
+                        precio,
+                        imagenURL,
+                    });
+
+                    // Limpiar el formulario
+                    nombreInput.value = "";
+                    descripcionInput.value = "";
+                    precioInput.value = "";
+                    imagenInput.value = "";
+
+                    cargarMenuDesdeFirestore(); // Actualizar la lista después de agregar
+                    mostrarAlerta("Plato agregado exitosamente.");
+                } catch (error) {
+                    console.error("Error al agregar el plato:", error);
+                    mostrarAlerta("Error al agregar el plato. Por favor, inténtelo nuevamente.");
+                }
+            } else {
+                mostrarAlerta("Por favor, complete todos los campos correctamente.");
+            }
+        });
+
+        // Función para cargar y mostrar los platos en el menú según el tipo seleccionado
+        async function cargarMenuDesdeFirestore() {
+            const tipoMenu = tipoMenuSelect.value;
+
+            try {
+                const querySnapshot = await db.collection(tipoMenu).get();
+
+                menuList.innerHTML = ""; // Limpiar la lista
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const listItem = document.createElement("li");
+
+                    // Crear botones para editar y eliminar
+                    const editarBtn = document.createElement("button");
+                    editarBtn.innerText = "Editar";
+                    editarBtn.addEventListener("click", () => {
+                        // Lógica para editar el plato
+                        editarPlato(doc.id, data);
+                    });
+
+                    const eliminarBtn = document.createElement("button");
+                    eliminarBtn.innerText = "Eliminar";
+                    eliminarBtn.addEventListener("click", async () => {
+                        // Eliminar el plato de la base de datos y actualizar la lista
+                        try {
+                            await db.collection(tipoMenu).doc(doc.id).delete();
+                            cargarMenuDesdeFirestore(); // Actualizar la lista después de eliminar
+                            mostrarAlerta("Plato eliminado exitosamente.");
+                        } catch (error) {
+                            console.error("Error al eliminar el plato:", error);
+                            mostrarAlerta("Error al eliminar el plato. Por favor, inténtelo nuevamente.");
+                        }
+                    });
+
+                    listItem.innerHTML = `
+                        <strong>${data.nombre}</strong> (${data.precio} USD)<br>
+                        ${data.descripcion}<br>
+                        <img src="${data.imagenURL}" alt="${data.nombre}" style="max-width: 200px;"><br><br>
+                    `;
+
+                    // Agregar botones de editar y eliminar
+                    listItem.appendChild(editarBtn);
+                    listItem.appendChild(eliminarBtn);
+
+                    menuList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error("Error al cargar el menú:", error);
+                mostrarAlerta("Error al cargar el menú. Por favor, inténtelo nuevamente.");
+            }
+        }
+
+        // Función para editar un plato
+        async function editarPlato(documentId, platoData) {
+            // Obtener una referencia al documento que se va a editar
+            const platoRef = db.collection(tipoMenuSelect.value).doc(documentId);
+
+            // Crear un formulario de edición con los detalles actuales
+            const editarForm = document.createElement("form");
+            editarForm.innerHTML = `
+                <label for="edit-nombre">Nombre del Plato:</label>
+                <input type="text" id="edit-nombre" value="${platoData.nombre}" required><br>
+
+                <label for="edit-descripcion">Descripción:</label>
+                <input type="text" id="edit-descripcion" value="${platoData.descripcion}" required><br>
+
+                <label for="edit-precio">Precio:</label>
+                <input type="number" id="edit-precio" value="${platoData.precio}" required><br>
+
+                <label for="edit-imagen">Imagen del Plato:</label>
+                <input type="file" id="edit-imagen" accept="image/*"><br>
+
+                <button type="submit">Guardar Cambios</button>
+            `;
+
+            // Manejar el envío del formulario de edición
+            editarForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const nuevosDatos = {
+                    nombre: editarForm.querySelector("#edit-nombre").value,
+                    descripcion: editarForm.querySelector("#edit-descripcion").value,
+                    precio: parseFloat(editarForm.querySelector("#edit-precio").value),
+                };
+
+                // Subir una nueva imagen si se seleccionó una
+                const nuevaImagenFile = editarForm.querySelector("#edit-imagen").files[0];
+                if (nuevaImagenFile) {
+                    try {
+                        // Subir la nueva imagen al almacenamiento de Firebase
+                        const storageRef = storage.ref(`imagenes/${tipoMenuSelect.value}/${nuevaImagenFile.name}`);
+                        const snapshot = await storageRef.put(nuevaImagenFile);
+
+                        // Obtener la URL de la nueva imagen subida
+                        nuevosDatos.imagenURL = await snapshot.ref.getDownloadURL();
+                    } catch (error) {
+                        console.error("Error al subir la nueva imagen:", error);
+                        mostrarAlerta("Error al subir la nueva imagen. Por favor, inténtelo nuevamente.");
+                    }
+                }
+
+                // Actualizar los datos en Firebase Firestore
+                try {
+                    await platoRef.update(nuevosDatos);
+                    mostrarAlerta("Plato actualizado exitosamente.");
+                    cargarMenuDesdeFirestore(); // Actualizar la lista después de editar
+                } catch (error) {
+                    console.error("Error al actualizar el plato:", error);
+                    mostrarAlerta("Error al actualizar el plato. Por favor, inténtelo nuevamente.");
+                }
+            });
+
+            // Reemplazar el contenido del elemento existente con el formulario de edición
+            menuList.innerHTML = "";
+            menuList.appendChild(editarForm);
+        }
+
+        // Llama a la función para cargar el menú cuando la página esté lista y cuando se cambie el tipo de menú
+        document.addEventListener("DOMContentLoaded", cargarMenuDesdeFirestore);
+        tipoMenuSelect.addEventListener("change", cargarMenuDesdeFirestore);
+    </script>
+</body>
+</html>

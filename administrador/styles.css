@@ -1,0 +1,258 @@
+/* Variables de colores */
+:root {
+    --primary: #FEA116; /* Color principal */
+    --light: #F1F8FF; /* Color de fondo claro */
+    --dark: #0F172B; /* Color de texto oscuro */
+    --link-color: #007BFF; /* Color del enlace */
+    --link-hover-color: #0056b3; /* Color del enlace al pasar el mouse */
+}
+
+/* Estilos globales */
+body {
+    font-family: 'Nunito', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--light);
+    color: var(--dark);
+}
+
+/* Barra de Navegación */
+.navbar {
+    background-color: var(--dark);
+    padding: 10px 0;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.navbar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.navbar li {
+    display: inline;
+    margin: 0 25px;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: var(--light);
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 15px;
+    transition: .5s;
+}
+
+.navbar a:hover {
+    text-decoration: underline;
+}
+
+/* Encabezados */
+h1, h2 {
+    color: var(--dark);
+}
+
+/* Formulario */
+form {
+    margin: 20px 0;
+    padding: 20px;
+    background-color: var(--light);
+    border-radius: 5px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+form label {
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button[type="submit"] {
+    background-color: var(--dark);
+    color: var(--light);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    text-transform: uppercase;
+    transition: .5s;
+}
+
+button[type="submit"]:hover {
+    background-color: var(--primary);
+}
+
+/* Lista de Platos */
+#menu-list {
+    list-style: none;
+    padding: 0;
+}
+
+#menu-list li {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    background-color: var(--light);
+}
+
+#menu-list img {
+    max-width: 100%;
+}
+
+/* Botones de Edición y Eliminación */
+button[type="button"] {
+    background-color: var(--dark);
+    color: var(--light);
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    margin-right: 10px;
+    border-radius: 5px;
+    font-weight: 500;
+    text-transform: uppercase;
+    transition: .5s;
+}
+
+button[type="button"]:hover {
+    background-color: var(--primary);
+}
+
+/* Estilos para el selector de tipo de menú */
+#tipo-menu {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: var(--light);
+}
+
+/* Otros estilos */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Estilos para los enlaces de redes sociales */
+.social-link {
+    color: var(--link-color);
+    text-decoration: none;
+    margin-right: 10px;
+    font-weight: bold;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+.social-link:hover {
+    color: var(--link-hover-color);
+    text-decoration: underline;
+}
+
+/* Estilos para el formulario de edición de miembros del equipo */
+#editar-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--light);
+    border-radius: 5px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+#editar-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#editar-form input[type="text"],
+#editar-form input[type="file"],
+#editar-form .social-link {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#editar-form button[type="submit"] {
+    background-color: var(--dark);
+    color: var(--light);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    text-transform: uppercase;
+    transition: .5s;
+    width: 100%;
+}
+
+#editar-form button[type="submit"]:hover {
+    background-color: var(--primary);
+}
+
+/* Agrega este CSS para mostrar los miembros del equipo en línea */
+#team-list {
+    display: flex;
+    flex-wrap: wrap; /* Para que los elementos se envuelvan a la siguiente línea si no caben en el ancho de la pantalla */
+    justify-content: flex-start; /* Para alinear los elementos a la izquierda */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#team-list li {
+    flex: 1; /* Hace que los elementos ocupen el mismo espacio en la fila */
+    margin-right: 20px; /* Espacio entre los miembros del equipo */
+    margin-bottom: 20px; /* Espacio debajo de cada miembro */
+}
+
+
+/* Estilos responsivos */
+@media screen and (max-width: 768px) {
+    /* Ajustes de la barra de navegación */
+    .navbar li {
+        margin: 0 15px;
+    }
+    
+    /* Ajustes de los encabezados */
+    h1, h2 {
+        font-size: 24px;
+    }
+    
+    /* Ajustes del formulario */
+    form {
+        padding: 15px;
+    }
+    
+    /* Ajustes de los botones */
+    button[type="submit"] {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+    
+    /* Ajustes de la lista de platos */
+    #menu-list li {
+        font-size: 14px;
+    }
+    
+    /* Ajustes de los enlaces de redes sociales */
+    .social-link {
+        font-size: 14px;
+        margin-right: 5px;
+    }
+}
